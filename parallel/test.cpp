@@ -13,7 +13,7 @@ void f(int j) {
 #pragma omp critical
     {
 	threadnumber=j;
-	for (int i=0; i<s.size(); i++) {
+	for (size_t i=0; i<s.size(); i++) {
 	    cerr << s[i];
 	    usleep(10000);	
 	}
@@ -22,7 +22,7 @@ void f(int j) {
     sleep(1);
 #pragma omp critical
     {
-	for (int i=0; i<s.size(); i++) {
+	for (size_t i=0; i<s.size(); i++) {
 	    cerr << s[i];
 	    usleep(10000);	
 	}
@@ -43,6 +43,7 @@ int main1() {
 	toto[i]->join();
     }
 
+    return 0;
 
 }
 
