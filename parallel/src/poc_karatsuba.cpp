@@ -6,7 +6,8 @@
 ******************************* Karatsuba 32 *****************************************
 *********************************************************************************** */
 
-void torus32PolynomialMultNaive_plain_aux(Torus32* __restrict result, const int* __restrict poly1, const Torus32* __restrict poly2, const int N) {
+// Naive multiplication modulo X^N+1
+void torus32PolynomialMultNaive_mod_XNplus1(Torus32* __restrict result, const int* __restrict poly1, const Torus32* __restrict poly2, const int N) {
     for (int i = 0; i < N; ++i) {
         Torus32 ri = 0;
         for (int j = 0; j <= i; ++j) {
@@ -14,6 +15,28 @@ void torus32PolynomialMultNaive_plain_aux(Torus32* __restrict result, const int*
         }
         for (int j = i+1; j < N; ++j) {
             ri -= poly1[j] * poly2[N+i-j];
+        }
+        result[i] = ri;
+    }
+}
+
+
+// The aux multiplication does not include the modulo X^N+1
+void torus32PolynomialMultNaive_plain_aux(Torus32* __restrict result, const int* __restrict poly1, const Torus32* __restrict poly2, const int N) {
+    int size_res = 2*N-1;
+    Torus32 ri;
+    for (int i = 0; i < N; ++i) {
+        ri = 0;
+        for (int j = 0; j <= i; ++j) {
+            ri += poly1[j] * poly2[i-j];
+        }
+        result[i] = ri;
+    }
+    for (int i = N; i < size_res; ++i) {
+        ri = 0;
+        int index = i-N+1;
+        for (int j = index; j < N; ++j) {
+            ri += poly1[j] * poly2[i-j];
         }
         result[i] = ri;
     }
@@ -45,7 +68,7 @@ void Karatsuba32_aux(Torus32* R, const int* A, const Torus32* B, const int size,
     for (int i = 0; i < h; ++i) Atemp[i] = A[i] + A[h+i];
     for (int i = 0; i < h; ++i) Btemp[i] = B[i] + B[h+i];
 
-    // Karatsuba recursivly
+    // Karatsuba recursively
     Karatsuba32_aux(R, A, B, h, buf); // (R[0],R[2*h-2]), (A[0],A[h-1]), (B[0],B[h-1])
     Karatsuba32_aux(R+size, A+h, B+h, h, buf); // (R[2*h],R[4*h-2]), (A[h],A[2*h-1]), (B[h],B[2*h-1])
     Karatsuba32_aux(Rtemp, Atemp, Btemp, h, buf);
@@ -61,16 +84,20 @@ void Karatsuba32_aux(Torus32* R, const int* A, const Torus32* B, const int size,
 // poly1, poly2 and result are polynomials mod X^N+1
 void torus32PolynomialMultKaratsuba_lvl1(Torus32Polynomial* result, const IntPolynomial* poly1, const Torus32Polynomial* poly2, const int N1){
     //const int N1 = env->N_lvl1;
-    Torus32* R = new Torus32[2*N1-1];
-    char* buf = new char[16*N1]; //that's large enough to store every tmp variables (2*2*N*4)
-    
+    int size_R = 2*N1-1;
+    int size_buf = 16*N1;
+    Torus32* R = new Torus32[size_R];
+    for (int j = 0; j < size_R; ++j) R[j] = 0;
+    char* buf = new char[size_buf]; //that's large enough to store every tmp variables (2*2*N*4)
+    for (int j = 0; j < size_buf; ++j) buf[j] = 0;
+
     // Karatsuba 
     Karatsuba32_aux(R, poly1->coefs, poly2->coefs, N1, buf);
 
     // reduction mod X^N+1
     for (int i = 0; i < N1-1; ++i) result->coefs[i] = R[i] - R[N1+i];
     result->coefs[N1-1] = R[N1-1];
-    
+
     delete[] R;
     delete[] buf;
 }
@@ -80,9 +107,14 @@ void torus32PolynomialMultKaratsuba_lvl1(Torus32Polynomial* result, const IntPol
 
 void torus32PolynomialMultAddKaratsuba_lvl1(Torus32Polynomial* result, const IntPolynomial* poly1, const Torus32Polynomial* poly2, const Globals* env){
     const int N1 = env->N_lvl1;
-    Torus32* R = new Torus32[2*N1-1];
-    char* buf = new char[16*N1]; //that's large enough to store every tmp variables (2*2*N*4)
-    
+    int size_R = 2*N1-1;
+    int size_buf = 16*N1;
+    Torus32* R = new Torus32[size_R];
+    for (int j = 0; j < size_R; ++j) R[j] = 0;
+    char* buf = new char[size_buf]; //that's large enough to store every tmp variables (2*2*N*4)
+    for (int j = 0; j < size_buf; ++j) buf[j] = 0;
+
+
     // Karatsuba 
     Karatsuba32_aux(R, poly1->coefs, poly2->coefs, N1, buf);
 
@@ -115,18 +147,43 @@ void torus32PolynomialMultAddKaratsuba_lvl1(Torus32Polynomial* result, const Int
 ******************************* Karatsuba 64 *****************************************
 *********************************************************************************** */
 
-void torus64PolynomialMultNaive_plain_aux(Torus64* __restrict result, const int* __restrict poly1, const Torus64* __restrict poly2, const int N) {
-    const int _2Nm1 = 2*N-1;
-    Torus64 ri;
-    for (int i=0; i<N; i++) {
-        ri=0;
-        for (int j=0; j<=i; j++) ri += poly1[j]*poly2[i-j];
-        result[i]=ri;
+// Naive multiplication mod X^N+1
+void torus64PolynomialMultNaive_mod_XNplus1(Torus64* __restrict result, const int* __restrict poly1, const Torus64* __restrict poly2, const int N) {
+    for (int i = 0; i < N; ++i) {
+        Torus64 ri = 0;
+        for (int j = 0; j <= i; ++j) {
+            ri += poly1[j] * poly2[i-j];
+        }
+        for (int j = i+1; j < N; ++j) {
+            ri -= poly1[j] * poly2[N+i-j];
+        }
+        result[i] = ri;
     }
-    for (int i=N; i<_2Nm1; i++) {
-        ri=0;
-        for (int j=i-N+1; j<N; j++) ri += poly1[j]*poly2[i-j];
-        result[i]=ri;
+}
+
+
+
+
+
+
+// The aux multiplication does not include the modulo X^N+1
+void torus64PolynomialMultNaive_plain_aux(Torus64* __restrict result, const int* __restrict poly1, const Torus64* __restrict poly2, const int N) {
+    int size_res = 2*N-1;
+    Torus64 ri;
+    for (int i = 0; i < N; ++i) {
+        ri = 0;
+        for (int j = 0; j <= i; ++j) {
+            ri += poly1[j] * poly2[i-j];
+        }
+        result[i] = ri;
+    }
+    for (int i = N; i < size_res; ++i) {
+        ri = 0;
+        int index = i-N+1;
+        for (int j = index; j < N; ++j) {
+            ri += poly1[j] * poly2[i-j];
+        }
+        result[i] = ri;
     }
 }
 
@@ -168,9 +225,13 @@ void Karatsuba64_aux(Torus64* R, const int* A, const Torus64* B, const int size,
 // poly1, poly2 and result are polynomials mod X^N+1
 void torus64PolynomialMultKaratsuba_lvl2(Torus64Polynomial* result, const IntPolynomial* poly1, const Torus64Polynomial* poly2, const Globals* env){
     const int N2 = env->N_lvl2;
-    Torus64* R = new Torus64[2*N2-1];
-    char* buf = new char[32*N2]; //that's large enough to store every tmp variables (2*2*N*8)
-    
+    int size_R = 2*N2-1;
+    int size_buf = 32*N2;
+    Torus64* R = new Torus64[size_R];
+    for (int j = 0; j < size_R; ++j) R[j] = 0;
+    char* buf = new char[size_buf]; //that's large enough to store every tmp variables (2*2*N*8)
+    for (int j = 0; j < size_buf; ++j) buf[j] = 0;
+
     // Karatsuba 
     Karatsuba64_aux(R, poly1->coefs, poly2->coefs, N2, buf);
 
@@ -188,9 +249,15 @@ void torus64PolynomialMultKaratsuba_lvl2(Torus64Polynomial* result, const IntPol
 
 void torus64PolynomialMultAddKaratsuba_lvl2(Torus64Polynomial* result, const IntPolynomial* poly1, const Torus64Polynomial* poly2, const Globals* env){
     const int N2 = env->N_lvl2;
-    Torus64* R = new Torus64[2*N2-1];
-    char* buf = new char[32*N2]; //that's large enough to store every tmp variables (2*2*N*8)
-    
+    int size_R = 2*N2-1;
+    int size_buf = 32*N2;
+    Torus64* R = new Torus64[size_R];
+    for (int j = 0; j < size_R; ++j) R[j] = 0;
+    char* buf = new char[size_buf]; //that's large enough to store every tmp variables (2*2*N*8)
+    for (int j = 0; j < size_buf; ++j) buf[j] = 0;
+
+
+
     // Karatsuba 
     Karatsuba64_aux(R, poly1->coefs, poly2->coefs, N2, buf);
 

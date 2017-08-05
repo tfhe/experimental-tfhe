@@ -12,7 +12,7 @@
 using namespace std;
 
 
-void torus32PolynomialMultNaive_plain_aux(Torus32* __restrict result, const int* __restrict poly1, const Torus32* __restrict poly2, const int N);
+void torus32PolynomialMultNaive_mod_XNplus1(Torus32* __restrict result, const int* __restrict poly1, const Torus32* __restrict poly2, const int N);
 void torus32PolynomialMultKaratsuba_lvl1(Torus32Polynomial* result, const IntPolynomial* poly1, const Torus32Polynomial* poly2, const int N1);
 // void torusPolynomialMultFFT(TorusPolynomial* result, const IntPolynomial* poly1, const TorusPolynomial* poly2);
 
@@ -36,8 +36,8 @@ void dieDramatically(string message) {
 
 
 int main(int argc, char **argv) {
-    const int nb_products = 10; // number of times we test the products
-    const int N = 4;
+    const int nb_products = 100; // number of times we test the products
+    const int N = 1024;
 
     // input polynomials
     IntPolynomial* a = new IntPolynomial(N);
@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
 
 
     // Parallelization of the multiplications with openmp
-//#pragma omp parallel for
+#pragma omp parallel for
     for (int i = 0; i < nb_products; ++i) {
         cout << "trial " << i << endl;
         for (int j = 0; j < N; j++) {
@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
         // Naive multiplication
         cstart = clock();
         //torusPolynomialMultNaive(resNaive, a, b);
-        torus32PolynomialMultNaive_plain_aux(resNaive_coefs, a_coefs, b_coefs, N);
+        torus32PolynomialMultNaive_mod_XNplus1(resNaive_coefs, a_coefs, b_coefs, N);
         /*
         for (int j = 0; j < N; ++j) {
             cout << resNaive_coefs[j] << " " ;
@@ -109,6 +109,8 @@ int main(int argc, char **argv) {
         nb_cycles_karatsuba[i] = cend - cstart;
 
 
+
+
         /*
         // FFT multiplication
         cstart = clock();
@@ -123,9 +125,9 @@ int main(int argc, char **argv) {
 
         for (int j = 0; j < N; j++) {
             if (abs(resNaive_coefs[j] - resKaratsuba->coefs[j]) > 1) {
-                cout << abs(resNaive_coefs[j] - resKaratsuba->coefs[j]) << endl;
+                cerr << abs(resNaive_coefs[j] - resKaratsuba->coefs[j]) << endl;
                 cerr << j << " " << resNaive_coefs[j] << " vs. " << resKaratsuba->coefs[j] << endl;
-                //dieDramatically("Naive != Karatsuba\n");
+                dieDramatically("Naive != Karatsuba\n");
             }
         }
 
@@ -166,12 +168,14 @@ int main(int argc, char **argv) {
     */
 
 
-/*
-    delete_IntPolynomial(a);
-    delete_TorusPolynomial(b);
-    delete_TorusPolynomial(resNaive);
-    delete_TorusPolynomial(resKaratsuba);
+
+    delete a;
+    delete[] a_coefs;
+    delete b;
+    delete[] b_coefs;
+    delete[] resNaive_coefs;
+    delete resKaratsuba;
     //delete_TorusPolynomial(resFFT);
-*/
+
     return 0;
 }
