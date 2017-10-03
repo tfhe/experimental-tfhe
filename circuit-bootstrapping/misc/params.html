@@ -74,7 +74,7 @@ function computeAll() {
     var tpreks2 = n_lvl1 * Math.pow(2, -2*(kslength_lvl10*ksbasebit_lvl10+1));
     var tmodswitch = n_lvl0/(4*n_lvl2*n_lvl2);
     var critical_total = tpreks1 + tpreks2 + tmodswitch;
-    var max_bootstrappable_variance = Math.pow(2,-8)-critical_total;
+    var max_bootstrappable_variance = Math.pow(2,-10)-critical_total;
     print('tpreks1,tpreks2,tmodswitch',tpreks1,tpreks2,tmodswitch,'critical_total',critical_total);
     print('max_bootstrappable_variance',max_bootstrappable_variance);
 
@@ -117,16 +117,16 @@ $(init);
             <tr><td>n level 1</td><td><input type="text" name="n_lvl1" value="1024"></td></tr>
             <tr><td>n level 2</td><td><input type="text" name="n_lvl2" value="2048"></td></tr>
             <tr><td>bgbit level 1</td><td><input type="text" name="bgbit_lvl1" value="8"></td></tr>
-            <tr><td>ell level 1</td><td><input type="text" name="ell_lvl1" value="4"></td></tr>
+            <tr><td>ell level 1</td><td><input type="text" name="ell_lvl1" value="2"></td></tr>
             <tr><td>bgbit level 2</td><td><input type="text" name="bgbit_lvl2" value="9"></td></tr>
-            <tr><td>ell level 2</td><td><input type="text" name="ell_lvl2" value="6"></td></tr>
-            <tr><td>bk -log_2(variance) level 2</td><td><input type="text" name="bkvar_lvl2" value="100"></td></tr>
-            <tr><td>ks -log_2(variance) 10</td><td><input type="text" name="ksvar_lvl10" value="22"></td></tr>
-            <tr><td>ks length 10</td><td><input type="text" name="kslength_lvl10" value="11"></td></tr>
-            <tr><td>ks basebit 10</td><td><input type="text" name="ksbasebit_lvl10" value="1"></td></tr>
-            <tr><td>ks -log_2(variance) 21</td><td><input type="text" name="ksvar_lvl21" value="64"></td></tr>
-            <tr><td>ks length 21</td><td><input type="text" name="kslength_lvl21" value="32"></td></tr>
-            <tr><td>ks basebit 21</td><td><input type="text" name="ksbasebit_lvl21" value="1"></td></tr>
+            <tr><td>ell level 2</td><td><input type="text" name="ell_lvl2" value="4"></td></tr>
+            <tr><td>bk -log_2(variance) level 2</td><td><input type="text" name="bkvar_lvl2" value="88"></td></tr>
+            <tr><td>ks -log_2(variance) 10</td><td><input type="text" name="ksvar_lvl10" value="28"></td></tr>
+            <tr><td>ks length 10</td><td><input type="text" name="kslength_lvl10" value="6"></td></tr>
+            <tr><td>ks basebit 10</td><td><input type="text" name="ksbasebit_lvl10" value="2"></td></tr>
+            <tr><td>ks -log_2(variance) 21</td><td><input type="text" name="ksvar_lvl21" value="62"></td></tr>
+            <tr><td>ks length 21</td><td><input type="text" name="kslength_lvl21" value="10"></td></tr>
+            <tr><td>ks basebit 21</td><td><input type="text" name="ksbasebit_lvl21" value="3"></td></tr>
             <tr><td rowspan="2"><input type="button" id="recompute" value="recompute"></td></tr>
         </table>
         <pre id="outcome">
