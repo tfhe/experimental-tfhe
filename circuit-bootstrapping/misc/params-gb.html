@@ -74,8 +74,9 @@ function computeAll() {
 
     print('tbk1,tbk2,tks1,tks2',tbk1,tbk2,tks1,tks2)
     print('variance after circuit bootstrapping',finalvar);
+    print('variance after addition',4*finalvar);
 
-    print('Bootstrapping status',finalvar<max_bootstrappable_variance);
+    print('Bootstrapping status',(4*finalvar)<max_bootstrappable_variance);
 }
 
 function init() {
