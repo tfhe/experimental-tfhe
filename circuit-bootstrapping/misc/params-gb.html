@@ -56,10 +56,10 @@ function computeAll() {
 
     //critical levels
     print('\n---- modswitch:');
-    var critical_variance = Math.pow(2,-10); //error 2^-49
+    var critical_variance = Math.pow(2,-11.4); //error 2^-33
     var tmodswitch = (n_lvl0+1)/(16*n_lvl1*n_lvl1); // n*(1/4N)^2
     var max_bootstrappable_variance = critical_variance-tmodswitch;
-    print('critical_variance on msg 1/2',critical_variance);
+    print('critical_variance on amplitude 1/8',critical_variance);
     print('tmodswitch',tmodswitch);
     print('max_bootstrappable_variance',max_bootstrappable_variance);
 
@@ -93,8 +93,8 @@ $(init);
             <tr><td>n level 1</td><td><input type="text" name="n_lvl1" value="1024"></td></tr>
             <tr><td>bgbit level 1</td><td><input type="text" name="bgbit_lvl1" value="10"></td></tr>
             <tr><td>ell level 1</td><td><input type="text" name="ell_lvl1" value="2"></td></tr>
-            <tr><td>bk -log_2(variance) level 1</td><td><input type="text" name="bkvar_lvl1" value="52"></td></tr>
-            <tr><td>ks -log_2(variance) 10</td><td><input type="text" name="ksvar_lvl10" value="28"></td></tr>
+            <tr><td>bk -log_2(variance) level 1</td><td><input type="text" name="bkvar_lvl1" value="56"></td></tr>
+            <tr><td>ks -log_2(variance) 10</td><td><input type="text" name="ksvar_lvl10" value="31"></td></tr>
             <tr><td>ks length 10</td><td><input type="text" name="kslength_lvl10" value="16"></td></tr>
             <tr><td>ks basebit 10</td><td><input type="text" name="ksbasebit_lvl10" value="1"></td></tr>
             <tr><td rowspan="2"><input type="button" id="recompute" value="recompute"></td></tr>
