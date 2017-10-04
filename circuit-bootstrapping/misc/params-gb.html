@@ -13,15 +13,35 @@ function maxLog2Alpha(n) {
     return (7+(n-256)/32);
 }
 
-function print(a,b,c,d,e,f,g) {
+
+function erf(x){
+    // erf(x) = 2/sqrt(pi) * integrate(from=0, to=x, e^-(t^2) ) dt
+    // with using Taylor expansion, 
+    //        = 2/sqrt(pi) * sigma(n=0 to +inf, ((-1)^n * x^(2n+1))/(n! * (2n+1)))
+    // calculationg n=0 to 50 bellow (note that inside sigma equals x when n = 0, and 50 may be enough)
+    var m = 1.00;
+    var s = 1.00;
+    var sum = x * 1.0;
+    var px = x;
+    for(var i = 1; i < 100; i++){
+        px *= x*x;
+        m *= i;
+        s *= -1;
+        sum += (s * px) / (m * (2.0 * i + 1.0));
+    }  
+    return 2 * sum / Math.sqrt(3.14159265358979);
+}
+
+function print() {
     var reps = '';
-    if (a!==undefined) reps += a + ' ';
-    if (b!==undefined) reps += b + ' ';
-    if (c!==undefined) reps += c + ' ';
-    if (d!==undefined) reps += d + ' ';
-    if (e!==undefined) reps += e + ' ';
-    if (f!==undefined) reps += f + ' ';
-    if (g!==undefined) reps += g + ' ';
+    for (var i=0; i<arguments.length; i++) {
+        var a = arguments[i];
+        if (Number.isFinite(a)) {
+            reps += a.toExponential() + ' ';
+        } else {
+            reps += a + ' ';
+        }
+    }
     $('#outcome').append(reps+'\n');
     console.log(reps);
 }
@@ -37,6 +57,10 @@ function computeAll() {
     var ksvar_lvl10 = $('input[name=ksvar_lvl10]').val();
     var kslength_lvl10 = $('input[name=kslength_lvl10]').val();
     var ksbasebit_lvl10 = $('input[name=ksbasebit_lvl10]').val();
+
+    print('bk_stdev',Math.pow(2,-bkvar_lvl1/2));
+    print('ks_stdev',Math.pow(2,-ksvar_lvl10/2));
+    print('ks_t',kslength_lvl10*ksbasebit_lvl10);
 
     //basic verifications
     //n_lvl1 and n_lvl1 are powers of 2
@@ -73,8 +97,12 @@ function computeAll() {
     var finalvar = tbk1+tbk2+tks1+tks2;
 
     print('tbk1,tbk2,tks1,tks2',tbk1,tbk2,tks1,tks2)
-    print('variance after circuit bootstrapping',finalvar);
+    print('variance after gate bootstrapping',finalvar);
+    print('stdev after gate bootstrapping',Math.sqrt(finalvar));
+    print('error vs 1/16 amplitude',Math.log(1-erf(1/(16*Math.sqrt(2*finalvar))))/Math.log(2));
     print('variance after addition',4*finalvar);
+    print('variance after addition and modswitch',4*finalvar+tmodswitch);
+    print('error vs 1/8 amplitude',Math.log(1-erf(1/(8*Math.sqrt(2*(4*finalvar+tmodswitch)))))/Math.log(2));
 
     print('Bootstrapping status',(4*finalvar)<max_bootstrappable_variance);
 }

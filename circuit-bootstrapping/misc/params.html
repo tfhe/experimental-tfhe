@@ -13,18 +13,38 @@ function maxLog2Alpha(n) {
     return (7+(n-256)/32);
 }
 
-function print(a,b,c,d,e,f,g) {
+function erf(x){
+    // erf(x) = 2/sqrt(pi) * integrate(from=0, to=x, e^-(t^2) ) dt
+    // with using Taylor expansion, 
+    //        = 2/sqrt(pi) * sigma(n=0 to +inf, ((-1)^n * x^(2n+1))/(n! * (2n+1)))
+    // calculationg n=0 to 50 bellow (note that inside sigma equals x when n = 0, and 50 may be enough)
+    var m = 1.00;
+    var s = 1.00;
+    var sum = x * 1.0;
+    var px = x;
+    for(var i = 1; i < 100; i++){
+        px *= x*x;
+        m *= i;
+        s *= -1;
+        sum += (s * px) / (m * (2.0 * i + 1.0));
+    }  
+    return 2 * sum / Math.sqrt(3.14159265358979);
+}
+
+function print() {
     var reps = '';
-    if (a!==undefined) reps += a + ' ';
-    if (b!==undefined) reps += b + ' ';
-    if (c!==undefined) reps += c + ' ';
-    if (d!==undefined) reps += d + ' ';
-    if (e!==undefined) reps += e + ' ';
-    if (f!==undefined) reps += f + ' ';
-    if (g!==undefined) reps += g + ' ';
+    for (var i=0; i<arguments.length; i++) {
+        var a = arguments[i];
+        if (Number.isFinite(a)) {
+            reps += a.toExponential() + ' ';
+        } else {
+            reps += a + ' ';
+        }
+    }
     $('#outcome').append(reps+'\n');
     console.log(reps);
 }
+
 
 function computeAll() {
     $('#outcome').empty();
@@ -67,6 +87,11 @@ function computeAll() {
     if (ksvar_lvl10 > mla) {
         print('RAINBOW WARNING: ksvar_lvl10 is too large: maximum',mla);
     }
+
+    print('\n---- params:');
+    print('ksstdev_lvl10',Math.pow(2,-ksvar_lvl10/2));
+    print('ksstdev_lvl21',Math.pow(2,-ksvar_lvl21/2));
+    print('bkstdev_lvl2',Math.pow(2,-bkvar_lvl2/2));
 
     //critical levels
     print('\n---- prekeyswitch and modswitch:');
