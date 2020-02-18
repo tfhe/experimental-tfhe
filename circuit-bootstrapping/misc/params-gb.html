@@ -80,8 +80,12 @@ function computeAll() {
 
     //critical levels
     print('\n---- modswitch:');
-    var critical_variance = Math.pow(2,-11.4); //error 2^-33
-    var tmodswitch = (n_lvl0+1)/(16*n_lvl1*n_lvl1); // n*(1/4N)^2
+    // This is the critical variance under which the message space
+    // -1/8,+1/8 is not safely decryptable (error 2^-33)
+    var critical_variance = Math.pow(2,-11.4);
+    // ModSwitch error (just before bootstrapping, rounding 2^-32 -> 1/2N
+    // n times Variance of unif between -1/4N and 1/4N = (n+1)/3.(1/4N)^2
+    var tmodswitch = (n_lvl0+1)/(3*16*n_lvl1*n_lvl1);
     var max_bootstrappable_variance = critical_variance-tmodswitch;
     print('critical_variance on amplitude 1/8',critical_variance);
     print('tmodswitch',tmodswitch);
@@ -100,7 +104,7 @@ function computeAll() {
     print('variance after gate bootstrapping',finalvar);
     print('stdev after gate bootstrapping',Math.sqrt(finalvar));
     print('error vs 1/16 amplitude',Math.log(1-erf(1/(16*Math.sqrt(2*finalvar))))/Math.log(2));
-    print('variance after addition',4*finalvar);
+    print('variance after addition (worst case here):',4*finalvar);
     print('variance after addition and modswitch',4*finalvar+tmodswitch);
     print('error vs 1/8 amplitude',Math.log(1-erf(1/(8*Math.sqrt(2*(4*finalvar+tmodswitch)))))/Math.log(2));
 
